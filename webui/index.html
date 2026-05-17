@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>AairaGalaxy</title>
+
+<link rel="stylesheet"
+href="css/style.css">
+
+</head>
+
+<body>
+
+<!-- GALAXY BACKGROUND -->
+
+<canvas id="bg"></canvas>
+
+<!-- HEADER -->
+
+<div class="header">
+
+<h1 class="logo">
+AAIRAGALAXY
+</h1>
+
+<div id="clock"></div>
+
+</div>
+
+<!-- LEFT PANEL -->
+
+<div class="leftpanel">
+
+<!-- NEURAL CORE -->
+
+<div class="hudbox">
+
+<h2>NEURAL CORE</h2>
+
+<div class="meter">
+
+<div class="meterfill"></div>
+
+</div>
+
+<p>98% SYSTEM ACTIVE</p>
+
+</div>
+
+<!-- LIVE SYSTEM -->
+
+<div class="hudbox">
+
+<h2>LIVE SYSTEM</h2>
+
+<div class="sysrow">
+CPU
+<div class="sysbar">
+<div id="cpuBar"></div>
+</div>
+</div>
+
+<div class="sysrow">
+RAM
+<div class="sysbar">
+<div id="ramBar"></div>
+</div>
+</div>
+
+<div class="sysrow">
+NETWORK
+<div class="sysbar">
+<div id="netBar"></div>
+</div>
+</div>
+
+<div class="sysrow">
+BATTERY
+<div class="sysbar">
+<div id="batteryBar"></div>
+</div>
+</div>
+
+</div>
+
+</div>
+
+<!-- CENTER -->
+
+<div class="center">
+
+<div class="solar">
+
+<!-- HOLOGRAM -->
+
+<div class="hologram">
+
+<div class="holoCore"></div>
+
+<div class="holoRing"></div>
+
+<div class="holoRing ring2"></div>
+
+</div>
+
+<!-- RADAR -->
+
+<div class="scanring"></div>
+
+<!-- SUN -->
+
+<div class="sun"></div>
+
+<!-- MERCURY -->
+
+<div class="orbit o1">
+<div class="planet mercury"></div>
+</div>
+
+<!-- VENUS -->
+
+<div class="orbit o2">
+<div class="planet venus"></div>
+</div>
+
+<!-- EARTH -->
+
+<div class="orbit o3">
+<div class="planet earth"></div>
+</div>
+
+<!-- MARS -->
+
+<div class="orbit o4">
+<div class="planet mars"></div>
+</div>
+
+<!-- JUPITER -->
+
+<div class="orbit o5">
+<div class="planet jupiter"></div>
+</div>
+
+<!-- SATURN -->
+
+<div class="orbit o6">
+
+<div class="planet saturn">
+
+<div class="saturnring"></div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- RIGHT PANEL -->
+
+<div class="sidepanel">
+
+<!-- CONSOLE -->
+
+<div class="console"
+id="chatbox">
+
+> AAIRAGALAXY ONLINE...
+<br>
+
+> Neural systems active...
+<br>
+
+> Orbital telemetry synchronized...
+
+</div>
+
+<!-- INPUT -->
+
+<input
+id="userInput"
+placeholder="Enter command...">
+
+<!-- BUTTONS -->
+
+<button onclick="sendMessage()">
+Execute Command
+</button>
+
+<button onclick="speakAI()">
+Activate Aaira
+</button>
+
+<!-- WEBCAM -->
+
+<video
+id="webcam"
+autoplay
+playsinline>
+
+</video>
+
+</div>
+
+<!-- MUSIC VISUALIZER -->
+
+<div class="bottompanel">
+
+<div class="musicbar"></div>
+<div class="musicbar"></div>
+<div class="musicbar"></div>
+<div class="musicbar"></div>
+<div class="musicbar"></div>
+<div class="musicbar"></div>
+<div class="musicbar"></div>
+<div class="musicbar"></div>
+
+</div>
+
+<!-- JAVASCRIPT -->
+
+<script src="js/stars.js"></script>
+
+<script src="js/voice.js"></script>
+
+<script src="js/ai.js"></script>
+
+<script src="js/gesture.js"></script>
+
+<script src="js/app.js"></script>
+
+</body>
+</html>
