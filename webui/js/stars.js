@@ -1,138 +1,101 @@
-/* LIGHTWEIGHT GALAXY ENGINE */
+/* AAIRAGALAXY STARFIELD */
 
 const canvas =
-document.getElementById("bg");
+    document.getElementById("stars");
 
-const ctx =
-canvas.getContext("2d");
+if (canvas) {
 
-/* SIZE */
+    const ctx =
+        canvas.getContext("2d");
 
-canvas.width =
-window.innerWidth;
+    let width = 0;
+    let height = 0;
 
-canvas.height =
-window.innerHeight;
+    function resizeCanvas() {
 
-/* PARTICLES */
+        width =
+            window.innerWidth;
 
-const particles = [];
+        height =
+            window.innerHeight;
 
-/* LOWER COUNT */
+        canvas.width = width;
+        canvas.height = height;
+    }
 
-const total = 70;
+    resizeCanvas();
 
-/* PARTICLE */
+    window.addEventListener(
+        "resize",
+        resizeCanvas
+    );
 
-class Particle{
 
-constructor(){
+    const stars = [];
 
-this.x =
-Math.random()*canvas.width;
+    const STAR_COUNT = 180;
 
-this.y =
-Math.random()*canvas.height;
 
-this.size =
-Math.random()*2;
+    for (
+        let i = 0;
+        i < STAR_COUNT;
+        i++
+    ) {
 
-this.speedX =
-(Math.random()-0.5)*0.2;
+        stars.push({
 
-this.speedY =
-(Math.random()-0.5)*0.2;
+            x:
+                Math.random() * width,
 
+            y:
+                Math.random() * height,
+
+            size:
+                Math.random() * 2,
+
+            speed:
+                Math.random() * 0.5 + 0.1
+        });
+    }
+
+
+    function animateStars() {
+
+        ctx.clearRect(
+            0,
+            0,
+            width,
+            height
+        );
+
+        stars.forEach(star => {
+
+            star.y += star.speed;
+
+            if (star.y > height) {
+
+                star.y = 0;
+                star.x =
+                    Math.random() * width;
+            }
+
+            ctx.beginPath();
+
+            ctx.arc(
+                star.x,
+                star.y,
+                star.size,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fill();
+        });
+
+        requestAnimationFrame(
+            animateStars
+        );
+    }
+
+    animateStars();
 }
-
-/* UPDATE */
-
-update(){
-
-this.x += this.speedX;
-
-this.y += this.speedY;
-
-if(this.x < 0)
-this.x = canvas.width;
-
-if(this.x > canvas.width)
-this.x = 0;
-
-if(this.y < 0)
-this.y = canvas.height;
-
-if(this.y > canvas.height)
-this.y = 0;
-
-}
-
-/* DRAW */
-
-draw(){
-
-ctx.beginPath();
-
-ctx.arc(
-this.x,
-this.y,
-this.size,
-0,
-Math.PI*2
-);
-
-ctx.fillStyle =
-"rgba(0,255,255,0.7)";
-
-ctx.fill();
-
-}
-
-}
-
-/* INIT */
-
-function init(){
-
-particles.length = 0;
-
-for(let i=0;i<total;i++){
-
-particles.push(
-new Particle()
-);
-
-}
-
-}
-
-/* ANIMATE */
-
-function animate(){
-
-ctx.clearRect(
-0,
-0,
-canvas.width,
-canvas.height
-);
-
-particles.forEach(p=>{
-
-p.update();
-
-p.draw();
-
-});
-
-requestAnimationFrame(
-animate
-);
-
-}
-
-/* START */
-
-init();
-
-animate();
