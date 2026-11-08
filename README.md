@@ -1,26 +1,27 @@
 # 🌌 AairaGalaxy
 
-A futuristic, browser-based AI operating-system interface built with HTML, CSS, and vanilla JavaScript.
+A futuristic browser-based assistant dashboard built with HTML, CSS, and vanilla JavaScript.
 
 ## Features
 
 - Animated starfield and solar-system visualization
-- Local command console
-- Browser speech recognition and speech synthesis (where supported)
+- Local command console with keyboard and optional voice input
+- Solar orbit pause/resume and planet focus commands
+- Hologram visibility controls
+- Music visualizer animation controls (visualizer only; no audio playback)
 - User-initiated webcam preview
-- Battery and network telemetry when the browser exposes those APIs
-- Responsive HUD interface
+- Battery and network telemetry when browser APIs expose the data
+- Responsive mobile HUD and reduced-motion support
 
 ## Project structure
 
 ```text
 AairaGalaxy/
-├── index.html                 # Root entry point; forwards to webui/
+├── index.html
 ├── README.md
 └── webui/
     ├── index.html
-    ├── css/
-    │   └── style.css
+    ├── css/style.css
     └── js/
         ├── app.js
         ├── ai.js
@@ -41,22 +42,33 @@ From the repository root:
 python -m http.server 8080
 ```
 
-Open:
+Open `http://localhost:8080/`. The root page forwards to `/webui/index.html`.
 
-```text
-http://localhost:8080/
-```
+## Assistant commands
 
-The root page forwards to `/webui/index.html`.
+| Command | Action |
+|---|---|
+| `status` | Show interface and camera status |
+| `solar pause` | Pause planetary orbits |
+| `solar resume` | Resume planetary orbits |
+| `focus earth` | Highlight a planet (also Mercury, Venus, Mars, Jupiter, Saturn) |
+| `music pause` | Pause the visualizer animation |
+| `music` | Enable the visualizer animation |
+| `hologram` | Show the hologram |
+| `hologram off` | Hide the hologram |
+| `camera` | Request camera permission and show preview |
+| `stop camera` | Stop camera tracks |
+| `time` | Display local system time |
+| `diagnostic` | Run basic interface diagnostics |
 
 ## Browser permissions and compatibility
 
-- Camera and microphone access require user permission. Use HTTPS or localhost.
-- Speech recognition availability varies by browser. The command input remains available as a fallback.
-- Battery and network information are optional browser APIs and may not be exposed.
-- CPU and RAM usage are not reported because standard browsers do not provide reliable access to those system metrics.
+- Camera and microphone require user permission and a secure context (HTTPS or localhost).
+- Speech recognition varies by browser; typed commands remain available.
+- Battery and network telemetry are optional browser APIs.
+- Standard browsers do not expose reliable system CPU/RAM usage; these values are deliberately not fabricated.
 - No camera is started automatically.
 
-## Security notes
+## Security
 
-The command console renders user-provided text with DOM `textContent`, not HTML. Camera access is started only after an explicit user command or button action. Do not place private API keys in frontend JavaScript.
+The command console inserts user text with DOM `textContent`, not HTML. Camera access is user-initiated. Do not put private API keys in frontend JavaScript. The current assistant is a local command engine, not an OpenAI-connected model.
