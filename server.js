@@ -99,7 +99,7 @@ async function handleChat(req, res) {
   const input = [
     {
       role: "system",
-      content: "You are AairaGalaxy, a concise, helpful personal AI assistant. Be accurate. Do not claim to control devices, access private data, or execute commands unless a connected tool explicitly confirms it. Local device commands are handled separately by the browser."
+      content: "You are AairaGalaxy, a concise, helpful personal AI assistant. Reply in the selected language when possible: " + ({ en: "Indian English", hi: "Hindi", pa: "Punjabi" }[body.language] || "the language used by the user") + ". Follow the language of the user if they switch languages. Be accurate. Do not claim to control devices, access private data, or execute commands unless a connected tool explicitly confirms it. Local device commands are handled separately by the browser."
     },
     ...safeHistory,
     { role: "user", content: message }
