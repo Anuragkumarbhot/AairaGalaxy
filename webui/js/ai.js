@@ -12,6 +12,32 @@ function addConsoleMessage(label, message) {
   chatbox.scrollTop = chatbox.scrollHeight;
 }
 
+const aairaConversation = [];
+
+async function askAairaAI(message) {
+  addConsoleMessage("AAIRA", "Connecting to AI service...");
+  try {
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message,
+        history: aairaConversation.slice(-10)
+      })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error || "AI service returned HTTP " + response.status);
+    if (!data.reply) throw new Error("AI service returned an empty response.");
+    aairaConversation.push({ role: "user", content: message }, { role: "assistant", content: data.reply });
+    if (aairaConversation.length > 20) aairaConversation.splice(0, aairaConversation.length - 20);
+    addConsoleMessage("AAIRAGALAXY AI", data.reply);
+    if (typeof speakMessage === "function") speakMessage(data.reply);
+  } catch (error) {
+    const messageText = error && error.message ? error.message : "Unknown connection error";
+    addConsoleMessage("AI OFFLINE", messageText + ". Local commands are still available.");
+  }
+}
+
 function sendMessage() {
   const input = document.getElementById("userInput");
   if (!input) return;
@@ -21,7 +47,7 @@ function sendMessage() {
   const text = rawText.toLowerCase();
   addConsoleMessage("YOU", rawText);
   input.value = "";
-  let response = "Command not recognized. Try: status, solar pause, solar resume, focus earth, music pause, hologram, camera, time, or diagnostic.";
+  let response = null;
 
   if (/^(hello|hi|hey)\b/.test(text)) {
     response = "Hello. AairaGalaxy command core is online.";
@@ -75,8 +101,12 @@ function sendMessage() {
     response = "Weather data is unavailable in offline mode.";
   }
 
-  window.setTimeout(() => {
-    addConsoleMessage("AAIRAGALAXY", response);
-    if (typeof speakMessage === "function") speakMessage(response);
-  }, 200);
+  if (response !== null) {
+    window.setTimeout(() => {
+      addConsoleMessage("AAIRAGALAXY", response);
+      if (typeof speakMessage === "function") speakMessage(response);
+    }, 120);
+  } else {
+    askAairaAI(rawText);
+  }
 }
