@@ -1,12 +1,12 @@
 {
   "name": "aairagalaxy",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
-  "description": "A futuristic browser assistant with a secure optional AI backend",
+  "description": "A multilingual AI voice assistant with a secure optional AI backend",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "check": "node --check server.js && node --check webui/js/ai.js"
+    "check": "node --check server.js && node --check webui/js/ai.js && node --check webui/js/voice.js"
   },
   "engines": {
     "node": ">=18"
