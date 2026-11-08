@@ -41,14 +41,28 @@
     </div>
   </main>
   <section class="sidepanel" aria-label="Aaira assistant">
+    <div class="voice-controls">
+      <label for="voiceLanguage">Voice language</label>
+      <select id="voiceLanguage" aria-label="Choose voice language">
+        <option value="en">English</option>
+        <option value="hi">हिन्दी</option>
+        <option value="pa">ਪੰਜਾਬੀ</option>
+      </select>
+      <button id="wakeWordButton" type="button" onclick="toggleWakeWord()">Enable wake word</button>
+      <p class="voice-note">Wake word works only while this page is open and listening.</p>
+    </div>
     <div class="console" id="chatbox" role="log" aria-live="polite">
       <div>&gt; AAIRAGALAXY ONLINE...</div>
       <div>&gt; Neural systems initialized.</div>
     </div>
-    <label class="sr-only" for="userInput">Enter command</label>
-    <input id="userInput" type="text" placeholder="Enter command..." autocomplete="off">
-    <button type="button" onclick="sendMessage()">Execute Command</button>
-    <button type="button" onclick="speakAI()">Activate Aaira</button>
+    <label class="sr-only" for="userInput">Message AairaGalaxy</label>
+    <input id="userInput" type="text" placeholder="Talk to Aaira..." autocomplete="off">
+    <button type="button" onclick="sendMessage()">Send message</button>
+    <button type="button" onclick="speakAI()">Speak to Aaira</button>
+    <div class="history-controls">
+      <button type="button" onclick="exportConversation()">Export history</button>
+      <button type="button" onclick="clearConversation()">Clear history</button>
+    </div>
     <video id="webcam" autoplay muted playsinline aria-label="Camera preview"></video>
   </section>
   <div class="bottompanel" aria-label="Music visualizer">
