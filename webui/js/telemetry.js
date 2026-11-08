@@ -1,177 +1,86 @@
 /* AAIRAGALAXY TELEMETRY ENGINE */
-
 let batteryManager = null;
+let telemetryTimer = null;
 
+function getNetworkConnection() {
+  return navigator.connection || navigator.mozConnection || navigator.webkitConnection || null;
+}
 
 async function initializeTelemetry() {
+  await initializeBattery();
+  updateNetwork();
+  updateBattery();
+  updateUnsupportedMetrics();
 
-    initializeBattery();
-
-    updateNetwork();
-
+  if (telemetryTimer) window.clearInterval(telemetryTimer);
+  telemetryTimer = window.setInterval(() => {
     updateBattery();
+    updateNetwork();
+  }, 10000);
 
-    setInterval(() => {
-
-        updateBattery();
-        updateNetwork();
-
-    }, 5000);
+  window.addEventListener("pagehide", () => {
+    if (telemetryTimer) window.clearInterval(telemetryTimer);
+    telemetryTimer = null;
+  }, { once: true });
 }
-
-
-/* BATTERY */
 
 async function initializeBattery() {
-
-    if (!("getBattery" in navigator)) {
-
-        return;
-    }
-
-    try {
-
-        batteryManager =
-            await navigator.getBattery();
-
-        batteryManager.addEventListener(
-            "levelchange",
-            updateBattery
-        );
-
-        batteryManager.addEventListener(
-            "chargingchange",
-            updateBattery
-        );
-
-        updateBattery();
-
-    } catch (error) {
-
-        console.warn(
-            "Battery API unavailable:",
-            error
-        );
-    }
+  if (typeof navigator.getBattery !== "function") return;
+  try {
+    batteryManager = await navigator.getBattery();
+    batteryManager.addEventListener("levelchange", updateBattery);
+    batteryManager.addEventListener("chargingchange", updateBattery);
+  } catch (error) {
+    console.info("AairaGalaxy: battery telemetry unavailable.", error);
+  }
 }
-
 
 function updateBattery() {
-
-    const batteryBar =
-        document.getElementById("batteryBar");
-
-    if (!batteryBar) {
-        return;
-    }
-
-    if (!batteryManager) {
-
-        batteryBar.style.width = "0%";
-        batteryBar.title = "Battery data unavailable";
-
-        return;
-    }
-
-    const level =
-        Math.round(
-            batteryManager.level * 100
-        );
-
-    batteryBar.style.width =
-        level + "%";
-
-    batteryBar.title =
-        `Battery: ${level}%`;
+  const bar = document.getElementById("batteryBar");
+  if (!bar) return;
+  if (!batteryManager || typeof batteryManager.level !== "number") {
+    bar.style.width = "0%";
+    bar.title = "Battery telemetry unavailable in this browser";
+    return;
+  }
+  const level = Math.round(batteryManager.level * 100);
+  bar.style.width = level + "%";
+  bar.title = "Battery: " + level + "%" + (batteryManager.charging ? " (charging)" : "");
 }
-
-
-/* NETWORK */
 
 function updateNetwork() {
-
-    const netBar =
-        document.getElementById("netBar");
-
-    if (!netBar) {
-        return;
-    }
-
-    const connection =
-        navigator.connection ||
-        navigator.mozConnection ||
-        navigator.webkitConnection;
-
-    if (!connection) {
-
-        netBar.style.width = "0%";
-        netBar.title = "Network information unavailable";
-
-        return;
-    }
-
-    let quality = 50;
-
-    if (connection.downlink) {
-
-        quality =
-            Math.min(
-                100,
-                Math.max(
-                    10,
-                    connection.downlink * 10
-                )
-            );
-    }
-
-    netBar.style.width =
-        quality + "%";
-
-    netBar.title =
-        `Network: ${
-            connection.effectiveType || "unknown"
-        }`;
+  const bar = document.getElementById("netBar");
+  if (!bar) return;
+  const connection = getNetworkConnection();
+  if (!connection) {
+    bar.style.width = "0%";
+    bar.title = "Network quality telemetry unavailable";
+    return;
+  }
+  const downlink = Number(connection.downlink);
+  const quality = Number.isFinite(downlink) ? Math.min(100, Math.max(5, downlink * 10)) : 0;
+  bar.style.width = quality + "%";
+  bar.title = "Network: " + (connection.effectiveType || "connection detected") +
+    (Number.isFinite(downlink) ? " · " + downlink + " Mbps estimated downlink" : "");
 }
 
-
-/* PUBLIC STATUS */
+function updateUnsupportedMetrics() {
+  ["cpuBar", "ramBar"].forEach(id => {
+    const bar = document.getElementById(id);
+    if (!bar) return;
+    bar.style.width = "0%";
+    bar.title = "Not exposed by standard browser APIs";
+  });
+}
 
 function getTelemetryStatus() {
-
-    const status = {
-
-        battery: null,
-        network: null,
-        cpu: null,
-        ram: null
-
-    };
-
-    if (batteryManager) {
-
-        status.battery =
-            Math.round(
-                batteryManager.level * 100
-            );
-    }
-
-    const connection =
-        navigator.connection ||
-        navigator.mozConnection ||
-        navigator.webkitConnection;
-
-    if (connection) {
-
-        status.network =
-            connection.effectiveType || null;
-    }
-
-    /*
-     * CPU and RAM are intentionally null.
-     *
-     * Browsers do not reliably expose real system
-     * CPU/RAM usage. Do not invent values.
-     */
-
-    return status;
+  const connection = getNetworkConnection();
+  return {
+    battery: batteryManager ? Math.round(batteryManager.level * 100) : null,
+    charging: batteryManager ? Boolean(batteryManager.charging) : null,
+    network: connection ? (connection.effectiveType || null) : null,
+    downlinkMbps: connection && Number.isFinite(Number(connection.downlink)) ? Number(connection.downlink) : null,
+    cpu: null,
+    ram: null
+  };
 }
