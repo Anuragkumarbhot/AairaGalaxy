@@ -12,14 +12,25 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
-import androidx.core.app.ActivityCompat
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.webkit.WebViewAssetLoader
 
 class MainActivity : ComponentActivity() {
     private lateinit var webView: WebView
     private var pendingWebPermission: PermissionRequest? = null
-    private val permissionRequestCode = 5104
+
+    private val permissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { results ->
+        val request = pendingWebPermission ?: return@registerForActivityResult
+        if (results.isNotEmpty() && results.values.all { it }) {
+            request.grant(request.resources)
+        } else {
+            request.deny()
+        }
+        pendingWebPermission = null
+    }
 
     private val assetLoader by lazy {
         WebViewAssetLoader.Builder()
@@ -47,6 +58,7 @@ class MainActivity : ComponentActivity() {
             ): android.webkit.WebResourceResponse? {
                 return assetLoader.shouldInterceptRequest(request.url)
             }
+
             override fun shouldOverrideUrlLoading(
                 view: WebView, request: WebResourceRequest
             ): Boolean {
@@ -58,25 +70,31 @@ class MainActivity : ComponentActivity() {
                 runOnUiThread {
                     val requested = request.resources.toSet()
                     val needed = mutableListOf<String>()
-                    if (PermissionRequest.RESOURCE_AUDIO_CAPTURE in requested)
+                    if (PermissionRequest.RESOURCE_AUDIO_CAPTURE in requested) {
                         needed += Manifest.permission.RECORD_AUDIO
-                    if (PermissionRequest.RESOURCE_VIDEO_CAPTURE in requested)
+                    }
+                    if (PermissionRequest.RESOURCE_VIDEO_CAPTURE in requested) {
                         needed += Manifest.permission.CAMERA
+                    }
                     if (needed.isEmpty()) {
                         request.deny()
                         return@runOnUiThread
                     }
                     val missing = needed.filter {
-                        ContextCompat.checkSelfPermission(this@MainActivity, it) != PackageManager.PERMISSION_GRANTED
+                        ContextCompat.checkSelfPermission(
+                            this@MainActivity, it
+                        ) != PackageManager.PERMISSION_GRANTED
                     }
-                    if (missing.isEmpty()) request.grant(request.resources) else {
+                    if (missing.isEmpty()) {
+                        request.grant(request.resources)
+                    } else {
                         pendingWebPermission?.deny()
                         pendingWebPermission = request
-                        ActivityCompat.requestPermissions(this@MainActivity,
-                            missing.toTypedArray(), permissionRequestCode)
+                        permissionLauncher.launch(missing.toTypedArray())
                     }
                 }
             }
+
             override fun onPermissionRequestCanceled(request: PermissionRequest) {
                 if (pendingWebPermission == request) pendingWebPermission = null
             }
@@ -84,25 +102,15 @@ class MainActivity : ComponentActivity() {
         setContentView(webView)
         if (savedInstanceState == null) {
             webView.loadUrl("https://appassets.androidplatform.net/assets/webui/index.html")
-        } else webView.restoreState(savedInstanceState)
+        } else {
+            webView.restoreState(savedInstanceState)
+        }
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (webView.canGoBack()) webView.goBack() else finish()
             }
         })
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode != permissionRequestCode) return
-        val request = pendingWebPermission ?: return
-        val granted = permissions.isNotEmpty() && grantResults.isNotEmpty() &&
-            grantResults.all { it == PackageManager.PERMISSION_GRANTED }
-        if (granted) request.grant(request.resources) else request.deny()
-        pendingWebPermission = null
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
