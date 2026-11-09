@@ -7,6 +7,7 @@ plugins {
 
 val webUiSource = rootProject.projectDir.parentFile.resolve("webui")
 val generatedWebAssets = layout.buildDirectory.dir("generated/aairaAssets")
+val apiBaseUrl = providers.gradleProperty("AIRA_API_BASE_URL").orElse("").get()
 
 android {
     namespace = "com.aairagalaxy.app"
@@ -17,7 +18,7 @@ android {
         targetSdk = 35
         versionCode = 5
         versionName = "0.5.0"
-        buildConfigField("String", "AIRA_API_BASE_URL",
+        buildConfigField("String", "AIRA_API_BASE_URL", "\"$apiBaseUrl\"")
             "\"\${providers.gradleProperty("AIRA_API_BASE_URL").orElse("").get()}\"")
     }
     buildFeatures { buildConfig = true }
