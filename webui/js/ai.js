@@ -64,7 +64,10 @@
   async function askAairaAI(message) {
     addConsoleMessage("AAIRA", "Connecting to AI service...");
     try {
-      const response = await fetch("/api/chat", {
+      const nativeBase = window.AairaNative && typeof window.AairaNative.getApiBaseUrl === "function"
+        ? window.AairaNative.getApiBaseUrl()
+        : "";
+      const response = await fetch((nativeBase || "") + "/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
