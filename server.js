@@ -179,17 +179,64 @@ function serveStatic(req, res) {
 
 const server = http.createServer((req, res) => {
   if (req.url && req.url.split("?")[0] === "/api/chat") {
-    if (req.headers.origin) {
-      const host = req.headers.host;
-      const expected = HOST === "0.0.0.0" ? null : "http://" + host;
-      const expectedHttps = "https://" + host;
-      if (expected && req.headers.origin !== expected && req.headers.origin !== expectedHttps) {
-        return send(res, 403, { error: "Cross-origin requests are not allowed." });
+    if (req.method === "OPTIONS") {
+      const origin = req.headers.origin;
+      const headers = {};
+      if (origin === "https://appassets.androidplatform.net") {
+        headers["Access-Control-Allow-Origin"] = origin;
+        headers["Vary"] = "Origin";
+        headers["Access-Control-Allow-Methods"] = "POST, OPTIONS";
+        headers["Access-Control-Allow-Headers"] = "Content-Type";
       }
+      res.writeHead(204, headers);
+      return res.end();
+    }
+    const origin = req.headers.origin;
+    const host = req.headers.host || "";
+    const sameOrigin = origin === "http://" + host || origin === "https://" + host;
+    const androidAssetOrigin = origin === "https://appassets.androidplatform.net";
+    if (origin && !sameOrigin && !androidAssetOrigin && HOST !== "0.0.0.0") {
+      return send(res, 403, { error: "Cross-origin requests are not allowed." });
+    }
+    if (androidAssetOrigin) {
+      res.setHeader("Access-Control-Allow-Origin", androidAssetOrigin ? origin : "");
+      res.setHeader("Vary", "Origin");
     }
     return handleChat(req, res);
   }
   return serveStatic(req, res);
+});
+
+server.on("request", (req, res) => {
+  if (!req.url || req.url.split("?")[0] !== "/api/chat") return;
+  const origin = req.headers.origin;
+  const host = req.headers.host || "";
+  const sameOrigin = origin === "http://" + host || origin === "https://" + host;
+  const androidAssetOrigin = origin === "https://appassets.androidplatform.net";
+
+  if (origin && !sameOrigin && !androidAssetOrigin && HOST !== "0.0.0.0") {
+    return send(res, 403, { error: "Cross-origin requests are not allowed." });
+  }
+
+  if (androidAssetOrigin) {
+    res.setHeader("Access-Control-Allow-Origin", "https://appassets.androidplatform.net");
+    res.setHeader("Vary", "Origin");
+    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  }
+
+  if (req.method === "OPTIONS") {
+    res.writeHead(204, {
+      "Cache-Control": "no-store",
+      ...(androidAssetOrigin ? {
+        "Access-Control-Allow-Origin": "https://appassets.androidplatform.net",
+        "Vary": "Origin",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type"
+      } : {})
+    });
+    return res.end();
+  }
 });
 
 server.listen(PORT, HOST, () => {
