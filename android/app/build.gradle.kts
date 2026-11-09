@@ -12,6 +12,7 @@ val apiBaseUrl = providers.gradleProperty("AIRA_API_BASE_URL").orElse("").get()
 android {
     namespace = "com.aairagalaxy.app"
     compileSdk = 35
+
     defaultConfig {
         applicationId = "com.aairagalaxy.app"
         minSdk = 23
@@ -19,14 +20,21 @@ android {
         versionCode = 5
         versionName = "0.5.0"
         buildConfigField("String", "AIRA_API_BASE_URL", "\"$apiBaseUrl\"")
-            "\"\${providers.gradleProperty("AIRA_API_BASE_URL").orElse("").get()}\"")
     }
-    buildFeatures { buildConfig = true }
+
+    buildFeatures {
+        buildConfig = true
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions { jvmTarget = "17" }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
     sourceSets["main"].assets.srcDir(generatedWebAssets)
 }
 
@@ -40,4 +48,7 @@ val bundleWebUi by tasks.registering(Copy::class) {
     from(webUiSource)
     into(generatedWebAssets.map { it.dir("webui") })
 }
-tasks.named("preBuild").configure { dependsOn(bundleWebUi) }
+
+tasks.named("preBuild").configure {
+    dependsOn(bundleWebUi)
+}
